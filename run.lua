@@ -5,7 +5,7 @@ local label     = require 'overfeat_label'
 
 -- OverFeat input arguements
 local network  = 'small' or 'big'
-local filenmae = 'bee.jpg'
+local filename = 'bee.jpg'
 
 -- system parameters
 local threads = 4
@@ -55,7 +55,7 @@ if network == 'small' then
    net:add(nn.SpatialConvolutionMM(1024, 1024, 3, 3, 1, 1))
    net:add(nn.Threshold(0.000001, 0.00000))
    net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
-   net:add(nn.SpatialConvolution(1024, 3072, 6, 6, 1, 1))
+   net:add(nn.SpatialConvolutionMM(1024, 3072, 6, 6, 1, 1))
    net:add(nn.Threshold(0.000001, 0.00000))
    net:add(nn.SpatialConvolutionMM(3072, 4096, 1, 1, 1, 1))
    net:add(nn.Threshold(0.000001, 0.00000))
