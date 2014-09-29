@@ -1,4 +1,4 @@
-assert(require("torchffi"))
+local ffi = require("ffi")
 local libfio = ffi.load("libParamBank.so")
 
 ffi.cdef[[
