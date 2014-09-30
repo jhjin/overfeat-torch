@@ -1,5 +1,7 @@
+require("lfs")
 local ffi = require("ffi")
-local libfio = ffi.load("libParamBank.so")
+local path = lfs.currentdir()
+local libfio = ffi.load(path .. "/libParamBank.so")
 
 ffi.cdef[[
 int read(float *storage, long offset, long length);
