@@ -3,6 +3,20 @@ require 'image'
 local ParamBank = require 'ParamBank'
 local label     = require 'overfeat_label'
 
+local SpatialConvolution = nn.SpatialConvolution
+local SpatialConvolutionMM = nn.SpatialConvolutionMM
+local SpatialMaxPooling = nn.SpatialMaxPooling
+
+local cuda = false;
+
+if cuda then
+   require 'cunn'
+   require 'cudnn'
+   SpatialConvolution = cudnn.SpatialConvolution
+   SpatialConvolutionMM = cudnn.SpatialConvolution
+   SpatialMaxPooling = cudnn.SpatialMaxPooling
+end
+
 -- OverFeat input arguements
 local network  = 'small' or 'big'
 local filename = 'bee.jpg'
@@ -39,27 +53,27 @@ net = nn.Sequential()
 local m = net.modules
 if network == 'small' then
    print('==> init a small overfeat network')
-   net:add(nn.SpatialConvolution(3, 96, 11, 11, 4, 4))
+   net:add(SpatialConvolution(3, 96, 11, 11, 4, 4))
    net:add(nn.Threshold(0.000001, 0.00000))
-   net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
-   net:add(nn.SpatialConvolutionMM(96, 256, 5, 5, 1, 1))
+   net:add(SpatialMaxPooling(2, 2, 2, 2))
+   net:add(SpatialConvolutionMM(96, 256, 5, 5, 1, 1))
    net:add(nn.Threshold(0.000001, 0.00000))
-   net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
+   net:add(SpatialMaxPooling(2, 2, 2, 2))
    net:add(nn.SpatialZeroPadding(1, 1, 1, 1))
-   net:add(nn.SpatialConvolutionMM(256, 512, 3, 3, 1, 1))
-   net:add(nn.Threshold(0.000001, 0.00000))
-   net:add(nn.SpatialZeroPadding(1, 1, 1, 1))
-   net:add(nn.SpatialConvolutionMM(512, 1024, 3, 3, 1, 1))
+   net:add(SpatialConvolutionMM(256, 512, 3, 3, 1, 1))
    net:add(nn.Threshold(0.000001, 0.00000))
    net:add(nn.SpatialZeroPadding(1, 1, 1, 1))
-   net:add(nn.SpatialConvolutionMM(1024, 1024, 3, 3, 1, 1))
+   net:add(SpatialConvolutionMM(512, 1024, 3, 3, 1, 1))
    net:add(nn.Threshold(0.000001, 0.00000))
-   net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
-   net:add(nn.SpatialConvolutionMM(1024, 3072, 6, 6, 1, 1))
+   net:add(nn.SpatialZeroPadding(1, 1, 1, 1))
+   net:add(SpatialConvolutionMM(1024, 1024, 3, 3, 1, 1))
    net:add(nn.Threshold(0.000001, 0.00000))
-   net:add(nn.SpatialConvolutionMM(3072, 4096, 1, 1, 1, 1))
+   net:add(SpatialMaxPooling(2, 2, 2, 2))
+   net:add(SpatialConvolutionMM(1024, 3072, 6, 6, 1, 1))
    net:add(nn.Threshold(0.000001, 0.00000))
-   net:add(nn.SpatialConvolutionMM(4096, 1000, 1, 1, 1, 1))
+   net:add(SpatialConvolutionMM(3072, 4096, 1, 1, 1, 1))
+   net:add(nn.Threshold(0.000001, 0.00000))
+   net:add(SpatialConvolutionMM(4096, 1000, 1, 1, 1, 1))
    net:add(nn.Reshape(1000))
    net:add(nn.SoftMax())
    net = net:float()
@@ -87,30 +101,30 @@ if network == 'small' then
 
 elseif network == 'big' then
    print('==> init a big overfeat network')
-   net:add(nn.SpatialConvolution(3, 96, 7, 7, 2, 2))
+   net:add(SpatialConvolution(3, 96, 7, 7, 2, 2))
    net:add(nn.Threshold(0, 0.000001))
-   net:add(nn.SpatialMaxPooling(3, 3, 3, 3))
-   net:add(nn.SpatialConvolutionMM(96, 256, 7, 7, 1, 1))
+   net:add(SpatialMaxPooling(3, 3, 3, 3))
+   net:add(SpatialConvolutionMM(96, 256, 7, 7, 1, 1))
    net:add(nn.Threshold(0, 0.000001))
-   net:add(nn.SpatialMaxPooling(2, 2, 2, 2))
+   net:add(SpatialMaxPooling(2, 2, 2, 2))
    net:add(nn.SpatialZeroPadding(1, 1, 1, 1))
-   net:add(nn.SpatialConvolutionMM(256, 512, 3, 3, 1, 1))
-   net:add(nn.Threshold(0, 0.000001))
-   net:add(nn.SpatialZeroPadding(1, 1, 1, 1))
-   net:add(nn.SpatialConvolutionMM(512, 512, 3, 3, 1, 1))
+   net:add(SpatialConvolutionMM(256, 512, 3, 3, 1, 1))
    net:add(nn.Threshold(0, 0.000001))
    net:add(nn.SpatialZeroPadding(1, 1, 1, 1))
-   net:add(nn.SpatialConvolutionMM(512, 1024, 3, 3, 1, 1))
+   net:add(SpatialConvolutionMM(512, 512, 3, 3, 1, 1))
    net:add(nn.Threshold(0, 0.000001))
    net:add(nn.SpatialZeroPadding(1, 1, 1, 1))
-   net:add(nn.SpatialConvolutionMM(1024, 1024, 3, 3, 1, 1))
+   net:add(SpatialConvolutionMM(512, 1024, 3, 3, 1, 1))
    net:add(nn.Threshold(0, 0.000001))
-   net:add(nn.SpatialMaxPooling(3, 3, 3, 3))
-   net:add(nn.SpatialConvolutionMM(1024, 4096, 5, 5, 1, 1))
+   net:add(nn.SpatialZeroPadding(1, 1, 1, 1))
+   net:add(SpatialConvolutionMM(1024, 1024, 3, 3, 1, 1))
    net:add(nn.Threshold(0, 0.000001))
-   net:add(nn.SpatialConvolutionMM(4096, 4096, 1, 1, 1, 1))
+   net:add(SpatialMaxPooling(3, 3, 3, 3))
+   net:add(SpatialConvolutionMM(1024, 4096, 5, 5, 1, 1))
    net:add(nn.Threshold(0, 0.000001))
-   net:add(nn.SpatialConvolutionMM(4096, 1000, 1, 1, 1, 1))
+   net:add(SpatialConvolutionMM(4096, 4096, 1, 1, 1, 1))
+   net:add(nn.Threshold(0, 0.000001))
+   net:add(SpatialConvolutionMM(4096, 1000, 1, 1, 1, 1))
    net:add(nn.Reshape(1000))
    net:add(nn.SoftMax())
    net = net:float()
@@ -142,6 +156,7 @@ end
 -- close file pointer
 ParamBank:close()
 
+if cuda then net:cuda() end
 
 -- load and preprocess image
 print('==> prepare an input image')
@@ -174,6 +189,12 @@ img = img_scale[{{},{offsety,offsety+dim-1},{offsetx,offsetx+dim-1}}]:floor()
 print('==> feed the input image')
 timer = torch.Timer()
 img:add(-118.380948):div(61.896913)  -- fixed distn ~ N(118.380948, 61.896913^2)
-prob, idx = torch.max(net:forward(img), 1)
+if cuda then 
+   img = img:cuda():view(1, img:size(1), img:size(2), img:size(3))
+   local out = net:forward(img):clone():float()
+   prob, idx = torch.max(out[1], 1)
+else
+   prob, idx = torch.max(net:forward(img), 1)
+end
 print(label[idx:squeeze()], prob:squeeze())
 print('Time elapsed: ' .. timer:time().real .. ' seconds')
