@@ -18,7 +18,15 @@ sh install.sh
 ## Run demo
 
 Run the command below.
+By default, the script loads a small network,
+and categorizes the `bee.jpg` image using `nn` backend (on CPU).
 
 ```bash
 th run.lua
+```
+
+For example, if you want to run a big model on GPU using `cudnn` library in a memory-efficient manner (inplace opertor), use the command instead.
+
+```bash
+th run.lua --network big --backend cudnn --inplace
 ```
