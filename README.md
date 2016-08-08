@@ -30,3 +30,14 @@ For example, if you want to run a big model on GPU using `cudnn` library in a me
 ```bash
 th run.lua --network big --backend cudnn --inplace
 ```
+
+## Docker
+
+If you'd prefer a faster setup process and are familiar with Docker, you can build and run a container with all of the necessary dependencies with the following commands:
+
+```bash
+docker build -t overfeat-torch .
+docker run overfeat-torch
+cd /root/overfeat/
+th run.lua
+```
