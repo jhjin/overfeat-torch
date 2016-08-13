@@ -173,7 +173,17 @@ local out = net:forward(img)
 
 -- find output class name in non-spatial mode
 if not opt.spatial then
+   local topN = 10
+   local probs, idxs = torch.topk(out, topN, 1, true)
+
+   for i=1,topN do
+      print(label[idxs[i]], probs[i])
+   end
+
+   print('')
+   print('==> Top result')
    local prob, idx = torch.max(out, 1)
+
    print(label[idx:squeeze()], prob:squeeze())
 end
 print('Time elapsed: ' .. timer:time().real .. ' seconds')
